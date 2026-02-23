@@ -1,0 +1,8 @@
+{
+  "name": "SocialHub",
+  "description": "A modern social media platform with explore, reels, messaging, and profile features.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
