@@ -1,6 +1,7 @@
-import React from 'react';
+
+"use client";
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Verified } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 
 const stories = [
   { id: 1, name: 'Your Story', image: 'https://picsum.photos/seed/story1/100/100' },

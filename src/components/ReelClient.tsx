@@ -1,4 +1,4 @@
-import React from 'react';
+"use client"
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Music, ChevronUp, ChevronDown, Volume2, PlusSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 

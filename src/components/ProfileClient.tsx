@@ -1,4 +1,4 @@
-import React from 'react';
+"use client"
 import { Settings, Grid, Film, UserCheck, Link as LinkIcon, Heart, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
