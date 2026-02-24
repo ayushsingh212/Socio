@@ -302,10 +302,13 @@ export default function Create() {
                       Select from computer
                     </button>
                     
-                    <button className="border border-gray-300 dark:border-gray-600 px-6 py-2.5 sm:px-8 sm:py-3 rounded-lg font-bold text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
-                      <Camera className="w-4 h-4 inline mr-2" />
-                      Take photo
-                    </button>
+                  <button
+  onClick={() => fileInputRef.current?.click()}
+  className="border border-gray-300 px-6 py-3 rounded-lg font-bold text-sm"
+>
+  <Camera className="w-4 h-4 inline mr-2" />
+  Take photo
+</button>
                   </div>
 
                   <input
@@ -393,8 +396,6 @@ export default function Create() {
                           )}
                         </div>
                       ))}
-                      
-                      {/* Add More Button */}
                       <button
                         onClick={() => fileInputRef.current?.click()}
                         className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center hover:border-primary transition-colors flex-shrink-0"

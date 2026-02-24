@@ -69,7 +69,7 @@ export default function DashboardLayout({
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Add auth state
+  const [isAuthenticated, setIsAuthenticated] = useState(true); 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
@@ -85,7 +85,7 @@ export default function DashboardLayout({
   useEffect(() => {
     // Check if user is logged in (you can implement your own logic)
     const token = localStorage.getItem('authToken');
-    setIsAuthenticated(!!token);
+    setIsAuthenticated(true);
   }, []);
 
   const handleLogin = () => {
@@ -113,7 +113,7 @@ export default function DashboardLayout({
         initialMode={authMode}
       />
       
-      {/* Mobile Header */}
+   
       <header className={cn(
         "fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-40 lg:hidden transition-all",
         isScrolled ? "border-b border-gray-200 dark:border-gray-800 shadow-sm" : ""
@@ -123,7 +123,7 @@ export default function DashboardLayout({
             <div className="bg-primary rounded-lg p-1.5">
               <img src="/logo.png" alt="Logo" className="w-5 h-5" />
             </div>
-            <h1 className="text-lg font-bold">SocialHub</h1>
+            <h1 className="text-lg font-bold">Socioo</h1>
           </div>
           
           <div className="flex items-center gap-3">
@@ -251,7 +251,7 @@ export default function DashboardLayout({
             <img src="/logo.png" alt="Logo" className="w-6 h-6" />
           </div>
           <h1 className="hidden lg:block text-xl font-bold">
-            SocialHub
+            Socioo
           </h1>
         </div>
 
