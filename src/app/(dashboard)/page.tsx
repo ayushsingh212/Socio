@@ -1,9 +1,53 @@
 "use client";
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal, Verified, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  Heart, 
+  MessageCircle, 
+  Send, 
+  Bookmark, 
+  MoreHorizontal, 
+  Verified, 
+  ChevronLeft, 
+  ChevronRight 
+} from 'lucide-react';
 
-const stories = [
+// Utility function for conditional classes
+function cn(...classes: (string | boolean | undefined | null)[]) {
+  return classes.filter(Boolean).join(' ');
+}
+
+// Types
+interface Story {
+  id: number;
+  name: string;
+  image: string;
+  viewed: boolean;
+}
+
+interface Post {
+  id: number;
+  author: string;
+  location: string;
+  avatar: string;
+  image: string;
+  likes: string;
+  caption: string;
+  time: string;
+  verified: boolean;
+  comments: number;
+}
+
+interface Suggestion {
+  id: number;
+  name: string;
+  info: string;
+  image: string;
+  followed: boolean;
+}
+
+// Mock data
+const stories: Story[] = [
   { id: 1, name: 'Your Story', image: 'https://picsum.photos/seed/story1/100/100', viewed: false },
   { id: 2, name: 'alex_travels', image: 'https://picsum.photos/seed/story2/100/100', viewed: false },
   { id: 3, name: 'chef_mike', image: 'https://picsum.photos/seed/story3/100/100', viewed: false },
@@ -14,7 +58,7 @@ const stories = [
   { id: 8, name: 'fitness_freak', image: 'https://picsum.photos/seed/story8/100/100', viewed: false },
 ];
 
-const posts = [
+const posts: Post[] = [
   {
     id: 1,
     author: 'alex_travels',
@@ -53,14 +97,14 @@ const posts = [
   }
 ];
 
-const suggestions = [
+const suggestions: Suggestion[] = [
   { id: 1, name: 'art_gallery_sf', info: 'Followed by alex_travels + 2 more', image: 'https://picsum.photos/seed/sug1/100/100', followed: false },
   { id: 2, name: 'tech_insider', info: 'Suggested for you', image: 'https://picsum.photos/seed/sug2/100/100', followed: false },
   { id: 3, name: 'fitness_pro', info: 'Followed by chef_mike', image: 'https://picsum.photos/seed/sug3/100/100', followed: true },
   { id: 4, name: 'travel_diaries', info: 'Popular in your area', image: 'https://picsum.photos/seed/sug4/100/100', followed: false },
 ];
 
-export default function Home() {
+export default function HomePage() {
   const [likedPosts, setLikedPosts] = useState<number[]>([]);
   const [savedPosts, setSavedPosts] = useState<number[]>([]);
   const [followedSuggestions, setFollowedSuggestions] = useState<number[]>(
@@ -86,6 +130,19 @@ export default function Home() {
     );
   };
 
+  const handleCommentChange = (postId: number, value: string) => {
+    setCommentText(prev => ({ ...prev, [postId]: value }));
+  };
+
+  const handlePostComment = (postId: number) => {
+    if (commentText[postId]?.trim()) {
+      // Handle post comment logic here
+      console.log('Posting comment:', commentText[postId]);
+      // Clear comment after posting
+      setCommentText(prev => ({ ...prev, [postId]: '' }));
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="flex flex-col lg:flex-row lg:justify-center lg:py-8">
@@ -107,7 +164,7 @@ export default function Home() {
                         src={story.image} 
                         alt={story.name} 
                         className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-white dark:border-gray-900"
-                        referrerPolicy="no-referrer"
+                        loading="lazy"
                       />
                     </div>
                   </div>
@@ -118,8 +175,18 @@ export default function Home() {
               ))}
             </div>
             
-            <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-lg hidden lg:block hover:scale-105 transition">
+            <button 
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-lg hidden lg:block hover:scale-105 transition"
+              aria-label="Next stories"
+            >
               <ChevronRight className="w-4 h-4" />
+            </button>
+            
+            <button 
+              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-lg hidden lg:block hover:scale-105 transition"
+              aria-label="Previous stories"
+            >
+              <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
 
@@ -135,7 +202,7 @@ export default function Home() {
                         src={post.avatar} 
                         alt={post.author} 
                         className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer" 
+                        loading="lazy"
                       />
                     </div>
                     <div className="flex flex-col">
@@ -151,7 +218,10 @@ export default function Home() {
                       <span className="text-[11px] sm:text-xs text-gray-500">{post.location}</span>
                     </div>
                   </div>
-                  <button className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors p-1">
+                  <button 
+                    className="text-gray-500 hover:text-gray-900 dark:hover:text-gray-300 transition-colors p-1"
+                    aria-label="More options"
+                  >
                     <MoreHorizontal className="w-5 h-5" />
                   </button>
                 </div>
@@ -162,12 +232,13 @@ export default function Home() {
                     src={post.image} 
                     alt="Post content" 
                     className="w-full aspect-square object-cover"
-                    referrerPolicy="no-referrer" 
+                    loading="lazy"
                   />
                   
-                  <button 
+                  {/* Double tap to like (optional feature) */}
+                  <div 
                     onClick={() => toggleLike(post.id)}
-                    className="absolute inset-0 w-full h-full"
+                    className="absolute inset-0 w-full h-full cursor-pointer"
                     aria-label="Like post"
                   />
                 </div>
@@ -178,6 +249,7 @@ export default function Home() {
                     <button 
                       onClick={() => toggleLike(post.id)}
                       className="transition-transform active:scale-125"
+                      aria-label={likedPosts.includes(post.id) ? "Unlike" : "Like"}
                     >
                       <Heart 
                         className={cn(
@@ -188,16 +260,23 @@ export default function Home() {
                         )} 
                       />
                     </button>
-                    <button className="hover:text-gray-900 dark:hover:text-white transition-transform active:scale-125">
+                    <button 
+                      className="hover:text-gray-900 dark:hover:text-white transition-transform active:scale-125"
+                      aria-label="Comment"
+                    >
                       <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" />
                     </button>
-                    <button className="hover:text-gray-900 dark:hover:text-white transition-transform active:scale-125">
+                    <button 
+                      className="hover:text-gray-900 dark:hover:text-white transition-transform active:scale-125"
+                      aria-label="Share"
+                    >
                       <Send className="w-6 h-6 sm:w-7 sm:h-7" />
                     </button>
                   </div>
                   <button 
                     onClick={() => toggleSave(post.id)}
                     className="transition-transform active:scale-125"
+                    aria-label={savedPosts.includes(post.id) ? "Unsave" : "Save"}
                   >
                     <Bookmark 
                       className={cn(
@@ -219,8 +298,10 @@ export default function Home() {
                   </p>
                   
                   <p className="text-sm">
-                    <span className="font-bold mr-2">{post.author}</span>
-                    {post.caption}
+                    <span className="font-bold mr-2 hover:underline cursor-pointer">
+                      {post.author}
+                    </span>
+                    <span>{post.caption}</span>
                   </p>
                   
                   <button className="text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 block">
@@ -228,20 +309,26 @@ export default function Home() {
                   </button>
                 </div>
 
-        
-                <div className="mt-3 px-4 sm:px-0 flex items-center gap-2">
+                {/* Add Comment */}
+                <div className="mt-3 px-4 sm:px-0 flex items-center gap-2 border-t border-gray-200 dark:border-gray-800 pt-3">
                   <input 
                     type="text" 
                     value={commentText[post.id] || ''}
-                    onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
+                    onChange={(e) => handleCommentChange(post.id, e.target.value)}
                     placeholder="Add a comment..." 
                     className="flex-1 bg-transparent border-none focus:outline-none text-sm py-2 placeholder:text-gray-500"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && commentText[post.id]?.trim()) {
+                        handlePostComment(post.id);
+                      }
+                    }}
                   />
                   <button 
+                    onClick={() => handlePostComment(post.id)}
                     className={cn(
                       "text-sm font-semibold transition",
                       commentText[post.id]?.trim() 
-                        ? "text-blue-500 hover:text-blue-600" 
+                        ? "text-blue-500 hover:text-blue-600 cursor-pointer" 
                         : "text-blue-300 cursor-not-allowed"
                     )}
                     disabled={!commentText[post.id]?.trim()}
@@ -254,9 +341,9 @@ export default function Home() {
           </div>
         </div>
 
-     
+        {/* Right Sidebar - Suggestions */}
         <aside className="hidden xl:block w-[380px] h-full p-8 shrink-0">
-       
+          {/* Current User Profile */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full border-2 border-gray-200 dark:border-gray-700 overflow-hidden">
@@ -264,7 +351,7 @@ export default function Home() {
                   src="https://picsum.photos/seed/me/100/100" 
                   alt="Profile" 
                   className="w-full h-full object-cover"
-                  referrerPolicy="no-referrer" 
+                  loading="lazy"
                 />
               </div>
               <div className="flex flex-col">
@@ -295,7 +382,7 @@ export default function Home() {
                         src={sug.image} 
                         alt={sug.name} 
                         className="w-full h-full object-cover"
-                        referrerPolicy="no-referrer" 
+                        loading="lazy"
                       />
                     </div>
                     <div className="flex flex-col">
@@ -319,15 +406,15 @@ export default function Home() {
             </div>
           </div>
 
-        
+          {/* Footer Links */}
           <div className="mt-8 text-[11px] text-gray-400">
             <nav className="flex flex-wrap gap-2 mb-4">
-              <a className="hover:underline hover:text-gray-600" href="#">About</a>
-              <a className="hover:underline hover:text-gray-600" href="#">Help</a>
-              <a className="hover:underline hover:text-gray-600" href="#">Privacy</a>
-              <a className="hover:underline hover:text-gray-600" href="#">Terms</a>
-              <a className="hover:underline hover:text-gray-600" href="#">Locations</a>
-              <a className="hover:underline hover:text-gray-600" href="#">Language</a>
+              <a href="#" className="hover:underline hover:text-gray-600">About</a>
+              <a href="#" className="hover:underline hover:text-gray-600">Help</a>
+              <a href="#" className="hover:underline hover:text-gray-600">Privacy</a>
+              <a href="#" className="hover:underline hover:text-gray-600">Terms</a>
+              <a href="#" className="hover:underline hover:text-gray-600">Locations</a>
+              <a href="#" className="hover:underline hover:text-gray-600">Language</a>
             </nav>
             <p>© 2024 SOCIALHUB FROM META</p>
           </div>
@@ -335,9 +422,4 @@ export default function Home() {
       </div>
     </div>
   );
-}
-
-
-function cn(...classes: (string | boolean | undefined)[]) {
-  return classes.filter(Boolean).join(' ');
 }

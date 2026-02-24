@@ -1,7 +1,6 @@
-// app/layout.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Home,
   Search,
@@ -29,51 +28,55 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const { user, isAuthenticated, logout } = useAuth();
   const isScrolled = useScroll(10);
 
+  // Handle mounting to prevent hydration issues
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Complete navigation items
   const navItems: NavItem[] = [
-    { href: "/", icon: Home, label: "Home" },
-    { href: "/search", icon: Search, label: "Search" },
-    { href: "/explore", icon: Compass, label: "Explore" },
-    { href: "/reels", icon: Film, label: "Reels" },
+    { href: "/dashboard", icon: Home, label: "Home" },
+    { href: "/dashboard/search", icon: Search, label: "Search" },
+    { href: "/dashboard/explore", icon: Compass, label: "Explore" },
+    { href: "/dashboard/reels", icon: Film, label: "Reels" },
     { 
-      href: "/messages", 
+      href: "/dashboard/messages", 
       icon: MessageSquare, 
       label: "Messages", 
       badge: 3 
     },
     { 
-      href: "/notifications", 
+      href: "/dashboard/notifications", 
       icon: Bell, 
       label: "Notifications" 
     },
     { 
-      href: "/create", 
+      href: "/dashboard/create", 
       icon: PlusSquare, 
       label: "Create" 
     },
     { 
-      href: "/saved", 
+      href: "/dashboard/saved", 
       icon: Bookmark, 
       label: "Saved" 
     },
     { 
-      href: "/profile", 
+      href: "/dashboard/profile", 
       icon: User, 
       label: "Profile" 
     },
     { 
-      href: "/settings", 
+      href: "/dashboard/settings", 
       icon: Settings, 
       label: "Settings" 
     },
   ];
 
-  // For authenticated users, show all items
-  // For non-authenticated, filter out items that require auth
   const filteredNavItems = isAuthenticated 
     ? navItems 
     : navItems.filter(item => 
@@ -88,15 +91,24 @@ export default function DashboardLayout({
     handleMenuClose();
   };
 
-  return (
-    <div className="flex min-h-screen bg-white dark:bg-gray-900">
-      <MobileHeader
-        isAuthenticated={isAuthenticated}
-        isMenuOpen={isMobileMenuOpen}
-        onMenuToggle={handleMenuToggle}
-        isScrolled={isScrolled}
-      />
+  // Prevent rendering until mounted to avoid hydration mismatch
+  if (!mounted) {
+    return null;
+  }
 
+  return (
+    <div className="flex min-h-screen bg-white dark:bg-gray-900 w-full overflow-x-hidden">
+      {/* Mobile Header - Only visible on mobile */}
+      <div className="lg:hidden w-full">
+        <MobileHeader
+          isAuthenticated={isAuthenticated}
+          isMenuOpen={isMobileMenuOpen}
+          onMenuToggle={handleMenuToggle}
+          isScrolled={isScrolled}
+        />
+      </div>
+
+      {/* Mobile Menu */}
       <MobileMenu
         isOpen={isMobileMenuOpen}
         onClose={handleMenuClose}
@@ -105,19 +117,38 @@ export default function DashboardLayout({
         onLogout={handleLogout}
       />
 
-      <DesktopSidebar
-        user={user}
-        navItems={filteredNavItems}
-        onLogout={handleLogout}
-      />
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden lg:block">
+        <DesktopSidebar
+          user={user}
+          navItems={filteredNavItems}
+          onLogout={handleLogout}
+        />
+      </div>
 
-      {isAuthenticated && <MobileBottomNav />}
-
-      <main className="flex-1 lg:ml-20 xl:ml-64 min-h-screen pb-16 lg:pb-0 pt-14 lg:pt-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-          {children}
+      {/* Main Content - Adjusted for mobile */}
+      <main className={`
+        flex-1 min-h-screen w-full transition-all duration-300
+        ${isAuthenticated ? 'pb-16 lg:pb-0' : 'pb-0'}
+        ${isMobileMenuOpen ? 'overflow-hidden' : ''}
+      `}>
+        <div className={`
+          w-full mx-auto
+          ${isAuthenticated ? 'pt-14 lg:pt-6' : 'pt-14 lg:pt-6'}
+          px-4 sm:px-6 lg:px-8
+        `}>
+          {/* Content container with proper max-width */}
+          <div className="max-w-4xl mx-auto w-full">
+            {children}
+          </div>
         </div>
       </main>
+
+      {isAuthenticated && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40">
+          <MobileBottomNav />
+        </div>
+      )}
     </div>
   );
 }
