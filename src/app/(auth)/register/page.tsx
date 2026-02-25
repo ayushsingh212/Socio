@@ -106,7 +106,6 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-7xl flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
         
-        {/* Left side - Phone mockup with image */}
         <div className="hidden lg:block relative w-[380px] h-[580px]">
           <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-[3rem] rotate-2 opacity-75 blur"></div>
           <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-[3rem] rotate-3 opacity-75 blur"></div>

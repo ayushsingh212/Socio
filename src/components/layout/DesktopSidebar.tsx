@@ -21,7 +21,6 @@ export function DesktopSidebar({
 }: DesktopSidebarProps) {
   const isAuthenticated = true;
 
-  // Split nav items into main and profile sections
   const mainNavItems = navItems.filter(item => 
     !['Profile', 'Settings'].includes(item.label)
   );
@@ -30,18 +29,18 @@ export function DesktopSidebar({
     ['Profile', 'Settings'].includes(item.label)
   );
 
-  // Non-authenticated view
+
   if (!isAuthenticated) {
     return (
       <aside className={cn(
-        "fixed left-0 top-0 h-screen w-20 lg:w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col py-6 px-3 z-30 hidden lg:flex",
+        "fixed left-0 top-0 h-screen w-20 lg:w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col py-6 px-3 z-30 hidden lg:flex overflow-hidden",
         className
       )}>
         <div className="mb-8 px-2">
           <Logo showText={true} size="md" />
         </div>
         
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center overflow-y-auto">
           <div className="text-center space-y-4 w-full">
             <p className="text-sm text-gray-500 dark:text-gray-400 px-4">
               Sign in to access your dashboard
@@ -77,13 +76,13 @@ export function DesktopSidebar({
       "fixed left-0 top-0 h-screen w-20 lg:w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col py-6 px-3 z-30 hidden lg:flex",
       className
     )}>
-      {/* Logo Section */}
-      <div className="mb-8 px-2">
+      {/* Logo Section - Fixed at top */}
+      <div className="flex-shrink-0 px-2">
         <Logo showText={true} size="md" />
       </div>
 
-      {/* User Info */}
-      <div className="px-2 mb-6">
+      {/* User Info - Fixed below logo */}
+      <div className="flex-shrink-0 px-2 mt-6">
         <div className="flex items-center gap-3 p-2 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
             {user?.name?.charAt(0)?.toUpperCase() || 'U'}
@@ -97,34 +96,38 @@ export function DesktopSidebar({
         </div>
       </div>
 
-      {/* Main Navigation */}
-      <nav className="flex flex-col gap-1 flex-1 overflow-y-auto">
-        {mainNavItems.map((item) => (
-          <SidebarItem key={item.href} {...item} />
-        ))}
+      {/* Main Navigation - Scrollable area */}
+      <nav className="flex-1 overflow-y-auto min-h-0 mt-4 px-1">
+        <div className="flex flex-col gap-1">
+          {mainNavItems.map((item) => (
+            <SidebarItem key={item.href} {...item} />
+          ))}
+        </div>
       </nav>
 
-      {/* Profile Section & Logout */}
-      <div className="mt-auto flex flex-col gap-1 pt-4 border-t border-gray-200 dark:border-gray-800">
-        {profileNavItems.map((item) => (
-          <SidebarItem key={item.href} {...item} />
-        ))}
+      {/* Profile Section & Logout - Fixed at bottom */}
+      <div className="flex-shrink-0 mt-auto pt-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex flex-col gap-1 px-1">
+          {profileNavItems.map((item) => (
+            <SidebarItem key={item.href} {...item} />
+          ))}
 
-        {/* Logout Button */}
-        <button
-          onClick={onLogout}
-          className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 w-full text-gray-600 dark:text-gray-400 transition-colors group mt-1"
-          aria-label="Logout"
-        >
-          <LogOut className="w-5 h-5 lg:w-6 lg:h-6 group-hover:text-red-500 transition-colors" />
-          <span className="hidden lg:block font-medium group-hover:text-red-500 transition-colors">
-            Logout
-          </span>
-        </button>
+          {/* Logout Button */}
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-4 px-3 py-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 w-full text-gray-600 dark:text-gray-400 transition-colors group mt-1"
+            aria-label="Logout"
+          >
+            <LogOut className="w-5 h-5 lg:w-6 lg:h-6 group-hover:text-red-500 transition-colors" />
+            <span className="hidden lg:block font-medium group-hover:text-red-500 transition-colors">
+              Logout
+            </span>
+          </button>
+        </div>
       </div>
 
       {/* Version Info */}
-      <div className="hidden lg:block px-3 mt-4">
+      <div className="flex-shrink-0 hidden lg:block px-3 mt-4">
         <p className="text-[10px] text-gray-400 text-center">Version 1.0.0</p>
       </div>
     </aside>
