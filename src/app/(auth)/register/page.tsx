@@ -23,7 +23,8 @@ export default function RegisterPage() {
 
   const MAX_LENGTH = 100;
   const USERNAME_MAX_LENGTH = 30;
-  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])[A-Za-z\d^A-Za-z0-9]{8,}$/;
+const PASSWORD_REGEX =
+/^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const NO_EMOJI_REGEX = /^[^\p{Emoji}]*$/u;
 
@@ -31,7 +32,7 @@ export default function RegisterPage() {
     if (!email) return "Please enter your email";
     if (!EMAIL_REGEX.test(email)) return "Please enter a valid email address";
     if (email.length > MAX_LENGTH) return `Email must be less than ${MAX_LENGTH} characters`;
-    if (!NO_EMOJI_REGEX.test(email)) return "Email cannot contain emojis";
+    // if (!NO_EMOJI_REGEX.test(email)) return "Email cannot contain emojis";
     return "";
   };
 
@@ -46,7 +47,7 @@ export default function RegisterPage() {
     if (!name) return "Please enter a username";
     if (name.length > USERNAME_MAX_LENGTH) return `Username must be less than ${USERNAME_MAX_LENGTH} characters`;
     if (!/^[a-zA-Z0-9_]+$/.test(name)) return "Username can only contain letters, numbers, and underscores";
-    if (!NO_EMOJI_REGEX.test(name)) return "Username cannot contain emojis";
+    // if (!NO_EMOJI_REGEX.test(name)) return "Username cannot contain emojis";
     return "";
   };
 
@@ -54,7 +55,7 @@ export default function RegisterPage() {
     if (!pass) return "Please enter a password";
     if (pass.length < 8) return "Password must be at least 8 characters";
     if (!PASSWORD_REGEX.test(pass)) return "Password must contain uppercase, lowercase, and special character";
-    if (!NO_EMOJI_REGEX.test(pass)) return "Password cannot contain emojis";
+    // if (!NO_EMOJI_REGEX.test(pass)) return "Password cannot contain emojis";
     return "";
   };
 
@@ -132,7 +133,7 @@ export default function RegisterPage() {
          
       setVerificationEmail(email);
       
-      await sendOtp({email:verificationEmail,purpose:"register"})
+      await sendOtp({email,purpose:"register"})
       setStep(6);
     } catch (err: any) {
       setError(err.message || "Registration failed. Please try again.");
@@ -144,7 +145,7 @@ export default function RegisterPage() {
   async function handleVerifyOTP(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!otp || otp.length !== 6) {
+    if (!otp || otp.length !== 4) {
       setError("Please enter a valid 6-digit OTP");
       return;
     }
@@ -154,10 +155,10 @@ export default function RegisterPage() {
 
     try {
       const res = await verifyRegisterEmail({email,otp});
-
-      if (!res?.data?.success) {
-        throw new Error(res.data.message || "Verification failed");
-      }
+     console.log("Here is the response"+res)
+      // if (!res?.data?.success) {
+      //   throw new Error(res?.data?.message || "Verification failed");
+      // }
 
       router.push("/");
     } catch (err: any) {

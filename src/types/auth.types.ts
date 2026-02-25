@@ -16,3 +16,20 @@ export interface SendOtpPayload{
   email:string
   purpose:string
 }
+
+export interface ForgotPasswordPayload {
+  email: string
+  method: "email" | "otp"
+}
+
+export interface VerifyResetOTPPayload {
+  email: string
+  otp: string
+  purpose:string
+}
+
+export interface ResetPasswordPayload {
+  email: string
+  newPassword: string
+  otp: string
+}

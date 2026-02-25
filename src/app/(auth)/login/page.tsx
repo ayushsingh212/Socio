@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { login } from "@/services/auth.service";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,11 +12,36 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
+  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])[A-Za-z\d^A-Za-z0-9]{8,}$/;
+
+  const validateIdentifier = (value: string) => {
+    if (!value.trim()) return "Please enter your username, email, or phone number";
+    return "";
+  };
+
+  const validatePassword = (pass: string) => {
+    if (!pass) return "Please enter your password";
+    // if (pass.length < 8) return "Password must be at least 8 characters long";
+    // if (!PASSWORD_REGEX.test(pass)) {
+    //   return "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+    // }
+    return "";
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     
-    if (!identifier.trim() || !password.trim()) {
-      setError("Please fill in all fields");
+    const identifierError = validateIdentifier(identifier);
+    if (identifierError) {
+      setError(identifierError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -23,24 +49,15 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          identifier: identifier.trim(),
-          password,
-        }),
+      const res = await login({
+        identifier,
+        password
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Login failed");
+      
+      if (!res.data.success) {
+        throw new Error(res.data.message || "Login failed");
       }
 
-      localStorage.setItem("token", data.token);
       router.push("/");
       
     } catch (err: any) {
@@ -54,64 +71,96 @@ export default function LoginPage() {
     console.log("Google login clicked");
   };
 
+  const getIdentifierType = (value: string) => {
+    if (EMAIL_REGEX.test(value)) return "email";
+    if (USERNAME_REGEX.test(value)) return "username";
+    if (/^\d+$/.test(value)) return "phone";
+    return "unknown";
+  };
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-7xl flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
         
-        {/* Left side - Phone mockup with image */}
         <div className="hidden lg:block relative w-[380px] h-[580px]">
           <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-[3rem] rotate-2 opacity-75 blur"></div>
           <div className="absolute inset-0 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 rounded-[3rem] rotate-3 opacity-75 blur"></div>
           <div className="relative z-10 bg-black rounded-[3rem] p-3 h-full border-4 border-gray-800">
-            <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-black">
+            <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-black flex items-center justify-center">
               <img 
                 src="./logo.png" 
                 alt="Social media feed preview"
-                className="w-full h-full object-cover m-20"
+                className="w-48 h-48 object-contain"
               />
             </div>
           </div>
         </div>
 
-        {/* Right side - Login form */}
         <div className="w-full max-w-sm">
-          {/* Logo */}
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
               Socio
             </h1>
           </div>
 
-          {/* Login card */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-8">
-            {/* Error message */}
             {error && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-4">
                 {error}
               </div>
             )}
 
-            {/* Login form */}
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input
-                type="text"
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Phone number, username or email"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-gray-600 text-sm"
-                disabled={loading}
-                autoComplete="username"
-              />
+              <div>
+                <input
+                  type="text"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="Phone number, username or email"
+                  className={`w-full bg-gray-800 border rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-gray-600 text-sm ${
+                    identifier && !validateIdentifier(identifier) && getIdentifierType(identifier) === "unknown"
+                      ? "border-red-500"
+                      : "border-gray-700"
+                  }`}
+                  disabled={loading}
+                  autoComplete="username"
+                />
+                {identifier && !validateIdentifier(identifier) && getIdentifierType(identifier) === "unknown" && (
+                  <p className="text-red-400 text-xs mt-1">
+                    Please enter a valid email, username, or phone number
+                  </p>
+                )}
+              </div>
 
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-gray-600 text-sm"
-                disabled={loading}
-                autoComplete="current-password"
-              />
+              <div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className={`w-full bg-gray-800 border rounded-lg px-4 py-3 text-white placeholder:text-gray-500 focus:outline-none focus:border-gray-600 text-sm ${
+                    password && password.length > 0 && !PASSWORD_REGEX.test(password)
+                      ? "border-red-500"
+                      : "border-gray-700"
+                  }`}
+                  disabled={loading}
+                  autoComplete="current-password"
+                />
+                {/* {password && password.length > 0 && !PASSWORD_REGEX.test(password) && (
+                  <p className="text-red-400 text-xs mt-1">
+                    Password must be 8+ chars with uppercase, lowercase, number, and special character
+                  </p>
+                )} */}
+              </div>
+
+              <div className="text-right">
+                <Link
+                  href="/forgot-password"
+                  className="text-xs text-blue-500 hover:text-blue-400"
+                >
+                  Forgot password?
+                </Link>
+              </div>
 
               <button
                 type="submit"
@@ -122,7 +171,6 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-800"></div>
@@ -132,7 +180,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Google login */}
             <button
               type="button"
               onClick={handleGoogleLogin}
@@ -160,7 +207,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Sign up link */}
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mt-4 text-center">
             <p className="text-sm text-gray-400">
               Don't have an account?{" "}
@@ -173,7 +219,6 @@ export default function LoginPage() {
             </p>
           </div>
 
-          {/* Get the app links */}
           <div className="text-center mt-6">
             <p className="text-sm text-gray-500 mb-4">Get the app.</p>
             <div className="flex items-center justify-center gap-2">

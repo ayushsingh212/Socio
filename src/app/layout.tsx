@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "SocialHub - Connect with the world",
-    template: "%s | SocialHub"
+    default: "Socioo - Connect with the world",
+    template: "%s | Socioo"
   },
   description: "A modern social media platform to share your moments, connect with friends, and discover new content",
   keywords: ["social media", "connect", "share", "moments", "friends"],

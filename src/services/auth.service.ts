@@ -1,15 +1,15 @@
 import api from "@/lib/axios"
-import { RegisterPayLoad, SendOtpPayload, VerifyEmailPayload } from "@/types/auth.types"
+import { RegisterPayLoad, SendOtpPayload, VerifyEmailPayload, ForgotPasswordPayload, VerifyResetOTPPayload, ResetPasswordPayload } from "@/types/auth.types"
 
 export const login = (data: {
-  email: string
+  identifier: string
   password: string
 }) => api.post("/auth/login", data)
 
 export const register = (data:RegisterPayLoad ) => api.post("/auth/register", data)
 
 export const getProfile = () =>
-  api.get("/auth/me")
+  api.get("/user/getUser")
 
 export const verifyRegisterEmail = (data:VerifyEmailPayload)=>{
   api.post("/auth/verifyRegisterEmail",data)
@@ -17,3 +17,17 @@ export const verifyRegisterEmail = (data:VerifyEmailPayload)=>{
 export const sendOtp = (data:SendOtpPayload)=>{
   api.post(`auth/sendOtp/${data.purpose}`,data)
 }
+
+export const forgotPassword = (data: ForgotPasswordPayload) => 
+  api.post("/auth/forgot-password", data)
+
+export const resetPasswordLink = (data:{email:string})=>{
+
+  api.post("/auth/resetLink",data)
+}
+
+export const verifyResetOTP = (data: VerifyResetOTPPayload) => 
+  api.post("/auth/verifyOtp", data)
+
+export const resetPassword = (data: ResetPasswordPayload) => 
+  api.post("/auth/reset-password", data)
