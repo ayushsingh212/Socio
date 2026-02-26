@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { forgotPassword, verifyResetOTP, resetPassword, resetPasswordLink, sendOtp } from "@/services/auth.service";
+import { forgotPassword, verifyResetOTP, resetPasswordOtp, resetPasswordLink, sendOtp } from "@/services/auth.service";
+import { PASSWORD_REGEX } from "@/constants";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -18,7 +19,6 @@ export default function ForgotPasswordPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9])[A-Za-z\d^A-Za-z0-9]{8,}$/;
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateEmail = (email: string) => {
@@ -145,7 +145,9 @@ export default function ForgotPasswordPage() {
     setSuccess("");
 
     try {
-      const res = await resetPassword(email, newPassword, otp);
+      const res = await resetPasswordOtp({newPassword,
+        confirmNewPassword:confirmPassword
+      });
       
       if (!res.data.success) {
         throw new Error(res.data.message || "Failed to reset password");
@@ -154,7 +156,7 @@ export default function ForgotPasswordPage() {
       setSuccess("Password reset successfully! Redirecting to login...");
       setTimeout(() => {
         router.push("/login");
-      }, 3000);
+      }, 1500);
     } catch (err: any) {
       setError(err.message || "Failed to reset password. Please try again.");
     } finally {
@@ -203,7 +205,7 @@ export default function ForgotPasswordPage() {
         <div className="w-full max-w-sm">
           <div className="text-center mb-4">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 bg-clip-text text-transparent">
-              Socio
+              Socioo
             </h1>
           </div>
 

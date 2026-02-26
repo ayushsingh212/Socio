@@ -29,7 +29,7 @@ export interface VerifyResetOTPPayload {
 }
 
 export interface ResetPasswordPayload {
-  email: string
   newPassword: string
-  otp: string
+  confirmNewPassword:string
+
 }

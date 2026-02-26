@@ -29,5 +29,5 @@ export const resetPasswordLink = (data:{email:string})=>{
 export const verifyResetOTP = (data: VerifyResetOTPPayload) => 
   api.post("/auth/verifyOtp", data)
 
-export const resetPassword = (data: ResetPasswordPayload) => 
-  api.post("/auth/reset-password", data)
+export const resetPasswordOtp = (data: ResetPasswordPayload) => 
+  api.post("/auth/changePasswordViaOtp", data)

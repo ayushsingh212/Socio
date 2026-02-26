@@ -11,7 +11,6 @@ const upNext = [
 export default function Reels() {
   return (
     <div className="flex h-screen bg-black overflow-hidden relative">
-      {/* Immersive Blurred Background */}
       <div 
         className="absolute inset-0 opacity-40 blur-[60px] scale-110"
         style={{ backgroundImage: "url('https://picsum.photos/seed/reel-bg/1920/1080')" }}
