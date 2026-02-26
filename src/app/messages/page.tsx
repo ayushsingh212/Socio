@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Video, Phone, Info, Smile, Image as ImageIcon, Mic, Send, Flame, CheckCheck } from 'lucide-react';
 
@@ -45,8 +46,7 @@ export default function Messages() {
   useEffect(() => {
     const token = localStorage.getItem('token'); // Get your auth token
     
-    const socketInstance = io('http://localhost:3000', {
-      auth: { token },
+    const socketInstance = io('http://localhost:8000', {
       transports: ['websocket'],
     });
 
