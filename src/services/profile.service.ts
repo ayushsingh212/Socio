@@ -1,18 +1,18 @@
 import api from "@/lib/axios"
-export const getProfile = ()=> {
+export const getUserProfile = (username:string)=> 
 
-  api.get("/user/getUser")
+  api.get(`/community/userCommunityProfile/${username}`)
 
-}
-export const getFollowers = ()=>{
 
-api.get("/userCommunityProfile/:username")
-}
-export const getFollowing = ()=>{
+export const getFollowers = ()=>
 
 api.get("/userCommunityProfile/:username")
-}
 
-export const getUserPost = ()=>{
+export const getFollowing = (username:string)=>
+
+  api.get(`/userCommunityProfile/${username}`)
+
+
+export const getUserPosts = ()=>
   api.get("getReelOfYourId/232")
-}
+

@@ -2,8 +2,9 @@
 import { useState, useEffect } from 'react';
 import { Settings, Grid, Film, UserCheck, Link as LinkIcon, Heart, MessageCircle, MapPin, Calendar, Award, Share2, Users, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getProfile, getFollowers, getFollowing, getUserPosts } from '@/services/user.service';
-
+import {  getFollowers, getFollowing, getUserPosts, getUserProfile } from '@/services/profile.service';
+import {useAuth} from "@/hooks/useAuth"
+import {getProfile} from "@/services/auth.service"
 function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
 }
@@ -46,19 +47,28 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfileData();
-    fetchUserPosts();
-    fetchFollowers();
-    fetchFollowing();
+    // fetchUserPosts();
+    // fetchFollowers();
+    // fetchFollowing();
   }, []);
 
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      const res = await getProfile();
-      if (res.data.success) {
-        setProfile(res.data.data);
-        setIsFollowing(res.data.data.isFollowing);
-      }
+      // const res = await getProfile();
+      // const {user:any} = useAuth()
+      // console.log("I am the coming user",user)
+      const userRes = await getProfile();
+      console.log(userRes)
+      const fullProf = await getUserProfile(userRes.data.data.username)
+
+      // const res = await getUserProfile(userRes?.username)
+      // if (fullProf.data) {
+ 
+       console.log("Here is that what came",fullProf)
+        setProfile(fullProf?.data.data);
+        setIsFollowing(true);
+      // }
     } catch (error) {
       console.error('Failed to fetch profile:', error);
     } finally {
@@ -66,38 +76,38 @@ export default function Profile() {
     }
   };
 
-  const fetchUserPosts = async () => {
-    try {
-      const res = await getUserPosts();
-      if (res.data.success) {
-        setPosts(res.data.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch posts:', error);
-    }
-  };
+  // const fetchUserPosts = async () => {
+  //   try {
+  //     const res = await getUserPosts();
+  //     if (res.data.success) {
+  //       setPosts(res.data.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch posts:', error);
+  //   }
+  // };
 
-  const fetchFollowers = async () => {
-    try {
-      const res = await getFollowers();
-      if (res.data.success) {
-        setFollowers(res.data.data.slice(0, 3));
-      }
-    } catch (error) {
-      console.error('Failed to fetch followers:', error);
-    }
-  };
+  // const fetchFollowers = async () => {
+  //   try {
+  //     const res = await getFollowers();
+  //     if (res.data.success) {
+  //       setFollowers(res.data.data.slice(0, 3));
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch followers:', error);
+  //   }
+  // };
 
-  const fetchFollowing = async () => {
-    try {
-      const res = await getFollowing();
-      if (res.data.success) {
-        setFollowing(res.data.data);
-      }
-    } catch (error) {
-      console.error('Failed to fetch following:', error);
-    }
-  };
+  // const fetchFollowing = async () => {
+  //   try {
+  //     const res = await getFollowing();
+  //     if (res.data.success) {
+  //       setFollowing(res.data.data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch following:', error);
+  //   }
+  // };
 
   const handleFollowToggle = async () => {
     try {

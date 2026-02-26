@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from '@/types/layout.types';
+import { getProfile } from '@/services/auth.service';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
@@ -10,16 +11,24 @@ export function useAuth() {
     const checkAuth = async () => {
       try {
         // Replace with your actual auth check
-        const token = localStorage.getItem('authToken');
-        if (token) {
-          // Fetch user data
-          setUser({
-            id: '1',
-            name: 'John Doe',
-            username: '@johndoe',
-            isAuthenticated: true
-          });
-        }
+        // const token = localStorage.getItem('authToken');
+        // if (token) {
+        //   // Fetch user data
+        //   setUser({
+        //     id: '1',
+        //     name: 'John Doe',
+        //     username: '@johndoe',
+        //     isAuthenticated: true
+        //   });
+        // }
+            const res =  await getProfile()
+   
+              console.log("here is the coming user")
+            if(res.data)
+            {
+          setUser(res.data)
+            }
+
       } catch (error) {
         console.error('Auth check failed:', error);
       } finally {
