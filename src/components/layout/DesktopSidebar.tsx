@@ -6,6 +6,7 @@ import { NavItem, User } from "@/types/layout.types";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuthStore } from "@/store/auth.store";
 
 interface DesktopSidebarProps {
   user: User | null;
@@ -15,13 +16,25 @@ interface DesktopSidebarProps {
 }
 
 export function DesktopSidebar({
-  user,
+  
   navItems,
   onLogout,
   className
 }: DesktopSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const isAuthenticated = true;
+
+   const {user} = useAuthStore();
+
+
+  
+   const [currentUser, setCurrentUser] = useState(()=>user.user.data || null)
+
+
+
+   console.log("Here is the coming user",user)
+
+   
 
   const mainNavItems = navItems.filter(item => 
     !['Profile', 'Settings'].includes(item.label)
@@ -148,7 +161,7 @@ export function DesktopSidebar({
           <div className="relative">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-pink-600 p-[2px]">
               <div className="w-full h-full rounded-full bg-gray-900 flex items-center justify-center text-white font-semibold text-sm">
-                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+                {currentUser.fullName?.charAt(0)?.toUpperCase() || 'U'}
               </div>
             </div>
             <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-gray-900 rounded-full"></div>
@@ -156,9 +169,9 @@ export function DesktopSidebar({
           
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user?.name || 'User'}</p>
+              <p className="text-sm font-medium text-white truncate">{currentUser?.fullName || 'User'}</p>
               <p className="text-xs text-gray-400 truncate">
-                @{user?.username || 'username'}
+                @{currentUser.username || 'username'}
               </p>
             </div>
           )}

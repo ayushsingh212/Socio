@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, Video, Phone, Info, Smile, Image as ImageIcon, Mic, Send, Flame, CheckCheck } from 'lucide-react';
 
 import { io, Socket } from 'socket.io-client';
+import { getAllActveChatRoom } from '@/services/message.service';
 
 interface Message {
   id: string;
@@ -24,26 +25,54 @@ interface Contact {
   roomId?: string;
 }
 
-const contacts: Contact[] = [
-  { id: 1, name: 'Jane Doe', lastMsg: 'Shared a reel • 2m ago', time: 'ACTIVE', avatar: 'https://picsum.photos/seed/jane/100/100', active: true, streak: 15, roomId: 'room_1' },
-  { id: 2, name: 'John Smith', lastMsg: 'See you there! 👋', time: '1H', avatar: 'https://picsum.photos/seed/john/100/100', roomId: 'room_2' },
-  { id: 3, name: 'Michael Scott', lastMsg: 'Sent 1 photo', time: '4H', avatar: 'https://picsum.photos/seed/mike/100/100', unread: true, roomId: 'room_3' },
-  { id: 4, name: 'Sarah Jenkins', lastMsg: "That's hilarious haha", time: 'YESTERDAY', avatar: 'https://picsum.photos/seed/sarah/100/100', roomId: 'room_4' },
-];
+// const contacts: Contact[] = [
+  // { id: 1, name: 'Jane Doe', lastMsg: 'Shared a reel • 2m ago', time: 'ACTIVE', avatar: 'https://picsum.photos/seed/jane/100/100', active: true, streak: 15, roomId: 'room_1' },
+  // { id: 2, name: 'John Smith', lastMsg: 'See you there! 👋', time: '1H', avatar: 'https://picsum.photos/seed/john/100/100', roomId: 'room_2' },
+  // { id: 3, name: 'Michael Scott', lastMsg: 'Sent 1 photo', time: '4H', avatar: 'https://picsum.photos/seed/mike/100/100', unread: true, roomId: 'room_3' },
+  // { id: 4, name: 'Sarah Jenkins', lastMsg: "That's hilarious haha", time: 'YESTERDAY', avatar: 'https://picsum.photos/seed/sarah/100/100', roomId: 'room_4' },
+// ];
 
 export default function Messages() {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [contacts, setContacts] = useState([{}])
   const [selectedContact, setSelectedContact] = useState<Contact>(contacts[0]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
   
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<NodeJS.Timeout>(); 
 
   // Initialize socket connection
+
+  const getAllChatRooms = async()=>{
+
+  try{
+      const res = await getAllActveChatRoom()
+
+      if(res.data.success)
+      {
+        setContacts(res.data)
+      }
+      
+  }
+  catch(err){
+   
+   console.log("Unable to fetch contacts",err)
+
+  }
+
+  }
+
   useEffect(() => {
+
+
+  getAllChatRooms()
+
+
+
     const token = localStorage.getItem('token'); // Get your auth token
     
     const socketInstance = io('http://localhost:8000', {
@@ -54,6 +83,8 @@ export default function Messages() {
       console.log('Connected to socket server');
       setIsConnected(true);
     });
+
+
 
     socketInstance.on('disconnect', () => {
       console.log('Disconnected from socket server');
@@ -77,6 +108,8 @@ export default function Messages() {
     });
 
     setSocket(socketInstance);
+
+
 
     return () => {
       if (socketInstance) {

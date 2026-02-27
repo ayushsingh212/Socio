@@ -30,9 +30,11 @@ import { DesktopSidebar } from "@/components/layout/DesktopSidebar";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { MobileHeader } from "@/components/layout/MobileHeader";
-import { useAuth } from "@/hooks/useAuth";
+import {  useAuthBootstrap } from "@/hooks/useAuth";
 import { useScroll } from "@/hooks/useScroll";
 import { NavItem } from "@/types/layout.types";
+import { useAuthStore } from "@/store/auth.store";
+import { useRouter } from "next/navigation";
 
 function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
@@ -47,47 +49,70 @@ export default function DashboardLayout({
   const [mounted, setMounted] = useState(false);
   const [activeCategory, setActiveCategory] = useState("For You");
   
-  const { user, isAuthenticated, logout } = useAuth();
+  // const { user, isAuthenticated, logout } = useAuth();
   const isScrolled = useScroll(10);
+    useAuthBootstrap()
 
+  const { user, isLoading,logout} = useAuthStore()
+  const router = useRouter()
+
+  const isAuthenticated = !!user
   useEffect(() => {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login")
+    }
+  }, [user, isLoading,router])
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    )
+  }
+
+  console.log("Here is the main user in the layout",user)
+  if(!user) return null;
+
+
   const navItems: NavItem[] = [
-    { href: "/dashboard", icon: Home, label: "Home", active: true },
-    { href: "/dashboard/search", icon: Search, label: "Search" },
-    { href: "/dashboard/explore", icon: Compass, label: "Explore" },
-    { href: "/dashboard/reels", icon: Film, label: "Reels", badge: 3 },
+    { href: "/", icon: Home, label: "Home", active: true },
+    { href: "/search", icon: Search, label: "Search" },
+    { href: "/explore", icon: Compass, label: "Explore" },
+    { href: "/reels", icon: Film, label: "Reels", badge: 3 },
     { 
-      href: "/dashboard/messages", 
+      href: "/messages", 
       icon: MessageSquare, 
       label: "Messages", 
       badge: 3 
     },
     { 
-      href: "/dashboard/notifications", 
+      href: "/notifications", 
       icon: Bell, 
       label: "Notifications",
       badge: 5 
     },
     { 
-      href: "/dashboard/create", 
+      href: "/create", 
       icon: PlusSquare, 
       label: "Create" 
     },
     { 
-      href: "/dashboard/saved", 
+      href: "/saved", 
       icon: Bookmark, 
       label: "Saved" 
     },
     { 
-      href: "/dashboard/profile", 
+      href: `/profile/${user.user.data.username}`, 
       icon: User, 
       label: "Profile" 
     },
     { 
-      href: "/dashboard/settings", 
+      href: "/settings", 
       icon: Settings, 
       label: "Settings" 
     },
