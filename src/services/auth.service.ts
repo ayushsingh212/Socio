@@ -9,7 +9,9 @@ export const login = (data: {
 export const register = (data:RegisterPayLoad ) => api.post("/auth/register", data)
 
 export const getProfile = () =>
-  api.get("/user/getUser")
+  api.get("/user/getUser",{
+    withCredentials:true
+  })
 
 export const verifyRegisterEmail = (data:VerifyEmailPayload)=>{
   api.post("/auth/verifyRegisterEmail",data)

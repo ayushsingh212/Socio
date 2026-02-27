@@ -12,4 +12,7 @@ export const startMessage = (data:{
   })
 
   export const getAllActveChatRoom = ()=>
-    api.post("/message/rooms")
+    api.get("/message/rooms")
+
+  export const getMessages = (roomId:string)=>
+    api.get(`/message/messages/${roomId}`)

@@ -145,7 +145,7 @@ const PASSWORD_REGEX =
   async function handleVerifyOTP(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!otp || otp.length !== 4) {
+    if (!otp || otp.length !== 6) {
       setError("Please enter a valid 6-digit OTP");
       return;
     }
