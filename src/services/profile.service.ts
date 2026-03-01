@@ -4,15 +4,21 @@ export const getUserProfile = (username:string)=>
   api.get(`/community/userCommunityProfile/${username}`)
 
 
-export const getFollowers = ()=>
+export const getFollowersCount = (userId:string)=>
 
-api.get("/userCommunityProfile/:username")
+api.get(`/user/getFollowerCount/${userId}`)
 
-export const getFollowing = (username:string)=>
+export const getFollowing = (userId:string)=>
 
-  api.get(`/userCommunityProfile/${username}`)
+  api.get(`/user/getFollowingCount/${userId}`)
 
 
 export const getUserPosts = ()=>
-  api.get("getReelOfYourId/232")
+  api.get("/getReelOfYourId/232")
+
+export const toggleFollow = (channelId: string) =>
+  api.put(`/user/followCreator/${channelId}`)
+
+export const getFollowSuggestions = ()=>
+  api.get("/user/getFollowSuggestions")
 

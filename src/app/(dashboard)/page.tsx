@@ -1,14 +1,14 @@
 "use client";
 
-import { useState } from 'react';
-import { 
-  Heart, 
-  MessageCircle, 
-  Send, 
-  Bookmark, 
-  MoreHorizontal, 
-  Verified, 
-  ChevronLeft, 
+import { useEffect, useState } from 'react';
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
+  MoreHorizontal,
+  Verified,
+  ChevronLeft,
   ChevronRight,
   Sparkles,
   Flame,
@@ -20,6 +20,8 @@ import {
   Users,
   Star
 } from 'lucide-react';
+import { getFollowersCount, getFollowSuggestions } from '@/services/profile.service';
+import { useAuthStore } from '@/store/auth.store';
 
 function cn(...classes: (string | boolean | undefined | null)[]) {
   return classes.filter(Boolean).join(' ');
@@ -120,44 +122,47 @@ const posts: Post[] = [
   }
 ];
 
-const suggestions: Suggestion[] = [
-  { 
-    id: 1, 
-    name: 'Art Gallery SF', 
-    bio: 'Contemporary art curator',
-    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150&h=150&fit=crop', 
-    followers: '45.6k',
-    verified: true,
-    category: 'Art'
-  },
-  { 
-    id: 2, 
-    name: 'Tech Insider', 
-    bio: 'Latest in tech & innovation',
-    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=150&h=150&fit=crop', 
-    followers: '89.2k',
-    verified: true,
-    category: 'Tech'
-  },
-  { 
-    id: 3, 
-    name: 'Fitness Pro', 
-    bio: 'Certified trainer • Wellness coach',
-    image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=150&h=150&fit=crop', 
-    followers: '123k',
-    verified: false,
-    category: 'Fitness'
-  },
-  { 
-    id: 4, 
-    name: 'Travel Diaries', 
-    bio: 'Exploring hidden gems 🌍',
-    image: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=150&h=150&fit=crop', 
-    followers: '67.8k',
-    verified: false,
-    category: 'Travel'
-  },
-];
+// const suggestions: Suggestion[] = [
+
+
+//   { 
+//     id: 1, 
+//     name: 'Art Gallery SF', 
+//     bio: 'Contemporary art curator',
+//     image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=150&h=150&fit=crop', 
+//     followers: '45.6k',
+//     verified: true,
+//     category: 'Art'
+//   },
+//   { 
+//     id: 2, 
+//     name: 'Tech Insider', 
+//     bio: 'Latest in tech & innovation',
+//     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=150&h=150&fit=crop', 
+//     followers: '89.2k',
+//     verified: true,
+//     category: 'Tech'
+//   },
+//   { 
+//     id: 3, 
+//     name: 'Fitness Pro', 
+//     bio: 'Certified trainer • Wellness coach',
+//     image: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=150&h=150&fit=crop', 
+//     followers: '123k',
+//     verified: false,
+//     category: 'Fitness'
+//   },
+//   { 
+//     id: 4, 
+//     name: 'Travel Diaries', 
+//     bio: 'Exploring hidden gems 🌍',
+//     image: 'https://images.unsplash.com/photo-1488085061387-422e29b40080?w=150&h=150&fit=crop', 
+//     followers: '67.8k',
+//     verified: false,
+//     category: 'Travel'
+//   },
+// ];
+
 
 const categories = [
   { icon: Flame, name: 'Trending', color: 'from-orange-500 to-red-500' },
@@ -174,15 +179,45 @@ export default function HomePage() {
   const [commentText, setCommentText] = useState<{ [key: number]: string }>({});
   const [currentImageIndex, setCurrentImageIndex] = useState<{ [key: number]: number }>({});
   const [selectedCategory, setSelectedCategory] = useState('Trending');
+  const [suggestions, setSuggestions] = useState([])
+  const [followersCount, setFollowersCount] = useState(0);
+  const { user } = useAuthStore();
+  const getSuggestionsForUser = async () => {
+
+    { console.log("I am the coming user", user); }
+
+    try {
+      const resF = await getFollowersCount(user.user.data._id);
+      setFollowersCount(resF.data.data.totalFollowers)
+
+      const res = await getFollowSuggestions();
+
+      console.log("here is the coming res", res)
+
+      if (res.data.success) {
+        setSuggestions(res.data.data.suggestions)
+      }
+
+    } catch (error) {
+
+    }
+
+
+
+  }
+
+
+
+
 
   const toggleLike = (postId: number) => {
-    setLikedPosts(prev => 
+    setLikedPosts(prev =>
       prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
     );
   };
 
   const toggleSave = (postId: number) => {
-    setSavedPosts(prev => 
+    setSavedPosts(prev =>
       prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
     );
   };
@@ -206,6 +241,10 @@ export default function HomePage() {
       [postId]: ((prev[postId] || 0) - 1 + maxImages) % maxImages
     }));
   };
+  useEffect(() => {
+
+    getSuggestionsForUser();
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
@@ -226,21 +265,21 @@ export default function HomePage() {
                 Stories
               </h2>
             </div>
-            
+
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto hide-scrollbar px-4 lg:px-0 scroll-smooth pb-2">
                 {stories.map((story) => (
                   <div key={story.id} className="flex flex-col items-center gap-2 shrink-0 cursor-pointer group">
                     <div className={cn(
                       "relative p-[2px] rounded-full transition-all duration-300 group-hover:scale-110",
-                      story.viewed 
-                        ? "bg-gray-700" 
+                      story.viewed
+                        ? "bg-gray-700"
                         : "bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 animate-gradient"
                     )}>
                       <div className="p-[2px] bg-black rounded-full">
-                        <img 
-                          src={story.image} 
-                          alt={story.name} 
+                        <img
+                          src={story.image}
+                          alt={story.name}
                           className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-black"
                           loading="lazy"
                         />
@@ -261,7 +300,7 @@ export default function HomePage() {
               <button className="absolute right-2 top-1/2 -translate-y-1/2 bg-gray-800/80 backdrop-blur-sm rounded-full p-2 shadow-lg hidden lg:block hover:bg-gray-700 transition border border-gray-700">
                 <ChevronRight className="w-4 h-4 text-white" />
               </button>
-              
+
               <button className="absolute left-2 top-1/2 -translate-y-1/2 bg-gray-800/80 backdrop-blur-sm rounded-full p-2 shadow-lg hidden lg:block hover:bg-gray-700 transition border border-gray-700">
                 <ChevronLeft className="w-4 h-4 text-white" />
               </button>
@@ -277,9 +316,9 @@ export default function HomePage() {
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-pink-600 p-[2px]">
-                        <img 
-                          src={post.avatar} 
-                          alt={post.author} 
+                        <img
+                          src={post.avatar}
+                          alt={post.author}
                           className="w-full h-full rounded-full object-cover border-2 border-gray-900"
                           loading="lazy"
                         />
@@ -308,31 +347,31 @@ export default function HomePage() {
 
                 {/* Post Image Carousel */}
                 <div className="relative rounded-xl overflow-hidden bg-gray-800 mb-4 group">
-                  <img 
-                    src={post.images[currentImageIndex[post.id] || 0]} 
-                    alt="Post content" 
+                  <img
+                    src={post.images[currentImageIndex[post.id] || 0]}
+                    alt="Post content"
                     className="w-full aspect-square object-cover"
                     loading="lazy"
                   />
-                  
+
                   {post.images.length > 1 && (
                     <>
-                      <button 
+                      <button
                         onClick={() => prevImage(post.id, post.images.length)}
                         className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70"
                       >
                         <ChevronLeft className="w-4 h-4 text-white" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => nextImage(post.id, post.images.length)}
                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all hover:bg-black/70"
                       >
                         <ChevronRight className="w-4 h-4 text-white" />
                       </button>
-                      
+
                       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                         {post.images.map((_, idx) => (
-                          <div 
+                          <div
                             key={idx}
                             className={cn(
                               "w-1.5 h-1.5 rounded-full transition-all",
@@ -346,7 +385,7 @@ export default function HomePage() {
                     </>
                   )}
 
-                  <div 
+                  <div
                     onDoubleClick={() => toggleLike(post.id)}
                     className="absolute inset-0 cursor-pointer"
                   />
@@ -355,17 +394,17 @@ export default function HomePage() {
                 {/* Post Actions */}
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-4">
-                    <button 
+                    <button
                       onClick={() => toggleLike(post.id)}
                       className="transition-all active:scale-125"
                     >
-                      <Heart 
+                      <Heart
                         className={cn(
                           "w-7 h-7 transition-all",
-                          likedPosts.includes(post.id) 
-                            ? "fill-pink-600 text-pink-600 filter drop-shadow-lg" 
+                          likedPosts.includes(post.id)
+                            ? "fill-pink-600 text-pink-600 filter drop-shadow-lg"
                             : "text-gray-400 hover:text-white"
-                        )} 
+                        )}
                       />
                     </button>
                     <button className="text-gray-400 hover:text-white transition-all active:scale-125">
@@ -375,17 +414,17 @@ export default function HomePage() {
                       <Send className="w-7 h-7" />
                     </button>
                   </div>
-                  <button 
+                  <button
                     onClick={() => toggleSave(post.id)}
                     className="transition-all active:scale-125"
                   >
-                    <Bookmark 
+                    <Bookmark
                       className={cn(
                         "w-7 h-7 transition-all",
-                        savedPosts.includes(post.id) 
-                          ? "fill-yellow-400 text-yellow-400" 
+                        savedPosts.includes(post.id)
+                          ? "fill-yellow-400 text-yellow-400"
                           : "text-gray-400 hover:text-white"
-                      )} 
+                      )}
                     />
                   </button>
                 </div>
@@ -394,11 +433,11 @@ export default function HomePage() {
                 <div className="space-y-2">
                   <p className="text-sm font-semibold text-white flex items-center gap-2">
                     <Heart className="w-4 h-4 text-pink-600" />
-                    {likedPosts.includes(post.id) 
-                      ? (parseInt(post.likes.replace('k', '')) * 1000 + 1).toLocaleString() 
+                    {likedPosts.includes(post.id)
+                      ? (parseInt(post.likes.replace('k', '')) * 1000 + 1).toLocaleString()
                       : post.likes} likes
                   </p>
-                  
+
                   <p className="text-sm text-gray-300">
                     <span className="font-bold text-white mr-2 hover:text-yellow-400 transition cursor-pointer">
                       {post.author}
@@ -414,7 +453,7 @@ export default function HomePage() {
                       </span>
                     ))}
                   </div>
-                  
+
                   <button className="text-sm text-gray-500 hover:text-gray-400 transition">
                     View all {post.comments} comments
                   </button>
@@ -422,18 +461,18 @@ export default function HomePage() {
 
                 {/* Add Comment */}
                 <div className="mt-3 flex items-center gap-2 border-t border-gray-800 pt-3">
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={commentText[post.id] || ''}
                     onChange={(e) => setCommentText(prev => ({ ...prev, [post.id]: e.target.value }))}
-                    placeholder="Add a comment..." 
+                    placeholder="Add a comment..."
                     className="flex-1 bg-transparent border-none focus:outline-none text-sm py-2 text-gray-300 placeholder:text-gray-600"
                   />
-                  <button 
+                  <button
                     className={cn(
                       "text-sm font-semibold transition",
-                      commentText[post.id]?.trim() 
-                        ? "bg-gradient-to-r from-yellow-400 to-pink-600 bg-clip-text text-transparent hover:from-yellow-300 hover:to-pink-500" 
+                      commentText[post.id]?.trim()
+                        ? "bg-gradient-to-r from-yellow-400 to-pink-600 bg-clip-text text-transparent hover:from-yellow-300 hover:to-pink-500"
                         : "text-gray-600 cursor-not-allowed"
                     )}
                     disabled={!commentText[post.id]?.trim()}
@@ -481,9 +520,9 @@ export default function HomePage() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-gradient-to-r from-yellow-400 to-pink-600 p-[2px]">
-                  <img 
-                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop" 
-                    alt="Profile" 
+                  <img
+                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop"
+                    alt="Profile"
                     className="w-full h-full rounded-full object-cover border-2 border-gray-900"
                   />
                 </div>
@@ -491,12 +530,17 @@ export default function HomePage() {
               </div>
               <div>
                 <span className="text-sm font-bold text-white flex items-center gap-1">
-                  joshua_design
+                  {
+                    user.user.data.username
+                  }
                   <Verified className="w-3 h-3 text-blue-500" />
                 </span>
-                <span className="text-sm text-gray-500">Joshua Miller</span>
-                <p className="text-xs text-gray-600 mt-1">Digital artist • 2.3k followers</p>
-              </div>
+                <span className="text-sm text-gray-500">{user.user.data.fullName}</span>
+                <p className="text-xs text-gray-600 mt-1">
+                  {user.user.data.bio?.length > 20
+                    ? user.user.data.bio.slice(0, 20) + "..."
+                    : user.user.data.bio} • {followersCount} followers
+                </p>              </div>
             </div>
           </div>
 
@@ -514,14 +558,14 @@ export default function HomePage() {
 
             <div className="space-y-4">
               {suggestions.map((sug) => (
-                <div key={sug.id} className="group bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-lg p-3 hover:border-gray-700 transition-all">
+                <div key={sug._id} className="group bg-gray-900/30 backdrop-blur-sm border border-gray-800 rounded-lg p-3 hover:border-gray-700 transition-all">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="relative">
                         <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-pink-600 p-[2px]">
-                          <img 
-                            src={sug.image} 
-                            alt={sug.name} 
+                          <img
+                            src={sug.avatarInfo.avatarUrl}
+                            alt={sug.username}
                             className="w-full h-full rounded-full object-cover border-2 border-gray-900"
                           />
                         </div>
@@ -532,14 +576,13 @@ export default function HomePage() {
                       <div>
                         <div className="flex items-center gap-1">
                           <span className="text-sm font-bold text-white group-hover:text-yellow-400 transition">
-                            {sug.name}
+                            {sug.fullName}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500">{sug.bio}</p>
-                        <p className="text-xs text-gray-600 mt-0.5">{sug.followers} followers</p>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={() => toggleFollow(sug.id)}
                       className={cn(
                         "text-xs font-bold px-3 py-1.5 rounded-lg transition-all",
@@ -560,9 +603,9 @@ export default function HomePage() {
           <div className="mt-8">
             <div className="flex flex-wrap gap-3 mb-4">
               {['About', 'Help', 'Privacy', 'Terms', 'Locations', 'Language'].map((item) => (
-                <a 
-                  key={item} 
-                  href="#" 
+                <a
+                  key={item}
+                  href="#"
                   className="text-xs text-gray-600 hover:text-yellow-400 transition"
                 >
                   {item}

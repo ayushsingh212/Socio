@@ -11,7 +11,7 @@ import {
   UserPlus, MessageSquare, Volume2, VolumeX, Play, Pause
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getFollowers, getFollowing, getUserPosts, getUserProfile } from '@/services/profile.service';
+import { getFollowers, getFollowing, getUserPosts, getUserProfile, toggleFollow } from '@/services/profile.service';
 import { getProfile } from "@/services/auth.service";
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -23,17 +23,17 @@ function cn(...classes: (string | boolean | undefined | null)[]) {
 }
 
 interface ProfileData {
-  id: string;
+  _id: string;
   username: string;
   fullName: string;
   bio: string;
   avatar: string;
   coverImage: string;
   postsCount: number;
-  followersCount: number;
+  followerCount: number;
   followingCount: number;
   isVerified: boolean;
-  isFollowing: boolean;
+  isFollowed: boolean;
   location: string;
   website: string;
   joinedDate: string;
@@ -74,7 +74,7 @@ interface Post {
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('posts');
-  const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowed, setIsFollowed] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -125,19 +125,20 @@ export default function Profile() {
         setIsOwnProfile(false);
         const profileRes = await getUserProfile(username as string);
         if (profileRes?.data?.data) {
+          setIsFollowed(profileRes.data.data.isFollowed)
           setProfile({
             ...profileRes.data.data,
             story: Math.random() > 0.3,
-            isFollowing: profileRes.data.data.isFollowing || false,
+            isFollowed: profileRes.data.data.isFollowed || false,
             highlights: generateMockHighlights(),
           });
-          setIsFollowing(profileRes.data.data.isFollowing || false);
+          setIsFollowed(profileRes.data.data.isFollowed || false);
         }
       }
 
       await fetchUserPosts(username || currentUsername);
-      await fetchFollowers(username || currentUsername);
-      await fetchFollowing(username || currentUsername);
+      // await fetchFollowers(username || currentUsername);
+      // await fetchFollowing(username || currentUsername);
       
     } catch (error) {
       console.error('Failed to fetch profile:', error);
@@ -172,37 +173,27 @@ export default function Profile() {
     }
   };
 
-  const fetchFollowers = async (targetUsername: string) => {
-    try {
-      const res = await getFollowers(targetUsername);
-      if (res?.data?.success) {
-        setFollowers(res.data.data?.slice(0, 5) || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch followers:', error);
-    }
-  };
 
-  const fetchFollowing = async (targetUsername: string) => {
-    try {
-      const res = await getFollowing(targetUsername);
-      if (res?.data?.success) {
-        setFollowing(res.data.data?.slice(0, 5) || []);
-      }
-    } catch (error) {
-      console.error('Failed to fetch following:', error);
-    }
-  };
+
+
 
   const handleFollowToggle = async () => {
     try {
-      setIsFollowing(!isFollowing);
+  
       if (profile) {
+
+        const res =   await toggleFollow(profile?._id)
+        console.log("here is the coming resss",res)
         setProfile({
           ...profile,
-          followersCount: isFollowing ? profile.followersCount - 1 : profile.followersCount + 1
+          followerCount: res.data.data.isFollowed
+    ? profile.followerCount + 1
+    : Math.max(0, profile.followerCount - 1)
         });
+
+            setIsFollowed(res.data.data.isFollowed);
       }
+    
     } catch (error) {
       console.error('Failed to toggle follow:', error);
     }
@@ -437,13 +428,13 @@ export default function Profile() {
                         onClick={handleFollowToggle}
                         className={cn(
                           "px-8 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2",
-                          isFollowing 
+                          isFollowed
                             ? "bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700" 
                             : "bg-gradient-to-r from-yellow-400 to-pink-600 text-gray-900 hover:from-yellow-300 hover:to-pink-500 shadow-lg shadow-pink-500/25"
                         )}
                       >
                         <UserPlus className="w-4 h-4" />
-                        {isFollowing ? 'Following' : 'Follow'}
+                        {isFollowed? 'Following' : 'Follow'}
                       </button>
                       <button 
                         onClick={handleMessage}
@@ -475,7 +466,7 @@ export default function Profile() {
                   className="text-center md:text-left cursor-pointer hover:opacity-80 transition"
                   onClick={() => setShowFollowersModal(true)}
                 >
-                  <span className="font-bold text-xl text-white block">{profile.followersCount?.toLocaleString() || 0}</span>
+                  <span className="font-bold text-xl text-white block">{profile.followerCount?.toLocaleString() || 0}</span>
                   <span className="text-gray-500 text-sm">followers</span>
                 </div>
                 <div 
