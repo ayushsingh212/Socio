@@ -203,9 +203,9 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       localStream: localStreamRef.current,
     });
 
-     socket!.emit("room:",{email:user.user.data.email,roomId})
+     socket?.emit("room:",{email:user?.user?.data?.email,roomId})
 
-    socket!.emit("user:call", {
+    socket?.emit("user:call", {
       toEmail: target.email,
       offer: { type: offer.type, sdp: offer.sdp },
       callType: type,
@@ -246,9 +246,10 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     // FIX #3: Re-enable for future renegotiations
     isInitiatingRef.current = false;
 
+    if (!socket) return;
       socket.emit("room:join",{})
 
-    socket!.emit("call:accepted", {
+    socket.emit("call:accepted", {
       toEmail: incomingCall.from.email,
       ans: { type: answer.type, sdp: answer.sdp },
     });

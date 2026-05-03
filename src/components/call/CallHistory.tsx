@@ -375,7 +375,7 @@ export function CallHistory({ calls, onCallBack, onClear }: CallHistoryProps) {
         </div>
       )}
 
-      <style jsx>{`
+      <style suppressHydrationWarning>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 6px;
         }

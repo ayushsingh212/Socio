@@ -69,19 +69,7 @@ interface Suggestion {
   followersCount?: number;
 }
 
-interface CallLog {
-  id: string;
-  participant: {
-    name: string;
-    avatar: string;
-    username: string;
-  };
-  type: 'audio' | 'video';
-  direction: 'incoming' | 'outgoing';
-  status: 'completed' | 'missed' | 'rejected';
-  duration: number;
-  timestamp: Date;
-}
+// CallLog type is imported from '@/components/call/CallHistory'
 
 const stories: Story[] = [
   { id: 1, name: 'Your Story', image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop', viewed: false, category: 'personal' },
@@ -161,6 +149,7 @@ const mockCallHistory: CallLog[] = [
   {
     id: '1',
     participant: {
+      id: 'u2',
       name: 'Alex Travels',
       avatar: 'https://images.unsplash.com/photo-1507591064344-4c6ce005b128?w=150&h=150&fit=crop',
       username: 'alextravels',
@@ -174,6 +163,7 @@ const mockCallHistory: CallLog[] = [
   {
     id: '2',
     participant: {
+      id: 'u3',
       name: 'Chef Mike',
       avatar: 'https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=150&h=150&fit=crop',
       username: 'chefmike',
@@ -749,7 +739,7 @@ export default function HomePage() {
         </aside>
       </div>
 
-      <style jsx>{`
+      <style suppressHydrationWarning>{`
         @keyframes gradient {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }

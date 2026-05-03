@@ -1,4 +1,5 @@
 // components/layout/DesktopSidebar.tsx
+"use client";
 import { LogOut, Sparkles, ChevronRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { SidebarItem } from "./SidebarItem";
@@ -228,7 +229,7 @@ export function DesktopSidebar({
         </div>
       )}
 
-      <style jsx>{`
+      <style suppressHydrationWarning>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 4px;
         }

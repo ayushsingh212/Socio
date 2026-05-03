@@ -103,8 +103,8 @@ export default function Messages() {
   const [callHistory, setCallHistory] = useState<CallLog[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
-  const searchTimeoutRef = useRef<NodeJS.Timeout>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const selectedContactRef = useRef<Contact | null>(null);
   // Use a ref for contacts inside socketInstance handlers to avoid stale closures
@@ -676,20 +676,17 @@ useEffect(() => {
 
               <div className="flex items-center gap-3">
                 {/* Call Buttons */}
-
-                {
-                  selectedContact.email ?    <CallButton
-                  userId={selectedContact.memberId}
-                  roomId = {selectedContact?.roomId}
-                  username={selectedContact.username || ''}
-                  userAvatar={selectedContact.avatar}
-                  userFullName={selectedContact.name}
-                  userEmail={selectedContact.email}
-                  onStartCall={handleStartCall}
-                />:""
-                }
-             
-          hlo
+                {selectedContact.email && (
+                  <CallButton
+                    userId={selectedContact.memberId}
+                    roomId={selectedContact?.roomId}
+                    username={selectedContact.username || ''}
+                    userAvatar={selectedContact.avatar}
+                    userFullName={selectedContact.name}
+                    userEmail={selectedContact.email}
+                    onStartCall={handleStartCall}
+                  />
+                )}
                 <button className="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 transition-colors border border-gray-700">
                   <Info className="w-5 h-5 text-gray-400" />
                 </button>

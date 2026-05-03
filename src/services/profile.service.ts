@@ -13,8 +13,8 @@ export const getFollowing = (userId:string)=>
   api.get(`/user/getFollowingCount/${userId}`)
 
 
-export const getUserPosts = ()=>
-  api.get("/getReelOfYourId/232")
+export const getUserPosts = (username?: string)=>
+  api.get(`/user/posts/${username ?? ''}`)
 
 export const toggleFollow = (channelId: string) =>
   api.put(`/user/followCreator/${channelId}`)

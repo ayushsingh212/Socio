@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { register, sendOtp, verifyOTP, verifyRegisterEmail } from "@/services/auth.service";
+import { register, sendOtp, verifyRegisterEmail } from "@/services/auth.service";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -574,7 +574,7 @@ const PASSWORD_REGEX =
         </div>
       </div>
 
-      <style jsx>{`
+      <style suppressHydrationWarning>{`
         @keyframes fadeIn {
           from {
             opacity: 0;

@@ -323,7 +323,7 @@ export default function DashboardLayout({
         </div>
       )}
 
-      <style jsx>{`
+      <style suppressHydrationWarning>{`
         @keyframes gradient {
           0%, 100% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }

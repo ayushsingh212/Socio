@@ -44,7 +44,7 @@ export function ActiveCall({
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
 
   const [showControls, setShowControls] = useState(true);
-  const hideTimer = useRef<NodeJS.Timeout>();
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const resetHideTimer = useCallback(() => {
     setShowControls(true);

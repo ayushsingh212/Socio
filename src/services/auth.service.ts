@@ -14,18 +14,17 @@ export const getProfile = () =>
   })
 
 export const verifyRegisterEmail = (data:VerifyEmailPayload)=>{
-  api.post("/auth/verifyRegisterEmail",data)
+  return api.post("/auth/verifyRegisterEmail",data)
 }
 export const sendOtp = (data:SendOtpPayload)=>{
-  api.post(`auth/sendOtp/${data.purpose}`,data)
+  return api.post(`auth/sendOtp/${data.purpose}`,data)
 }
 
 export const forgotPassword = (data: ForgotPasswordPayload) => 
   api.post("/auth/forgot-password", data)
 
 export const resetPasswordLink = (data:{email:string})=>{
-
-  api.post("/auth/resetLink",data)
+  return api.post("/auth/resetLink",data)
 }
 
 export const verifyResetOTP = (data: VerifyResetOTPPayload) => 

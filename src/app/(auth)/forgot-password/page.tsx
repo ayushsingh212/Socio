@@ -170,7 +170,7 @@ export default function ForgotPasswordPage() {
     setSuccess("");
 
     try {
-      const res = await forgotPassword(email, "otp");
+      const res = await forgotPassword({ email, method: "otp" });
       
       if (!res.data.success) {
         throw new Error(res.data.message || "Failed to resend OTP");

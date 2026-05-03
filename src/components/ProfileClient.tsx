@@ -11,7 +11,7 @@ import {
   UserPlus, MessageSquare, Volume2, VolumeX, Play, Pause
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getFollowers, getFollowing, getUserPosts, getUserProfile, toggleFollow } from '@/services/profile.service';
+import { getFollowersCount, getFollowing, getUserPosts, getUserProfile, toggleFollow } from '@/services/profile.service';
 import { getProfile } from "@/services/auth.service";
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -209,9 +209,7 @@ export default function Profile() {
 
     try{
       console.log("here is the profile",profile)
-   const res = await startMessage({receiver:profile?._id,
-    message:messageText
-   })
+   const res = await startMessage({receiver:profile!._id})
     }
     catch{
 

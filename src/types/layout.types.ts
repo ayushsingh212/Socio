@@ -14,6 +14,7 @@ export interface NavItem {
   icon: LucideIcon;
   label: string;
   badge?: number;
+  active?: boolean;
   requiresAuth?: boolean;
   onClick?: () => void;
 }

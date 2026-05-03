@@ -4,16 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { useSocket } from "@/context/SocketContext"
 import { useAuthStore } from "@/store/auth.store"
 
-interface Props {
-  email: string
-}
-
 export default function SimpleVideoCall() {
   const socket = useSocket()
-
-  const {user} = useAuthStore()
-  const email = user.user.data.email;
-  console.log("I am the email")
+  const { user } = useAuthStore()
+  const email: string = user?.user?.data?.email ?? ""
 
   const localVideoRef = useRef<HTMLVideoElement>(null)
   const remoteVideoRef = useRef<HTMLVideoElement>(null)
@@ -29,22 +23,21 @@ export default function SimpleVideoCall() {
       { urls: "stun:stun.l.google.com:19302" }
     ]
   }
-  console.log("I am the coming socket")
 
   useEffect(() => {
     if (!socket) return
 
     socket.emit("video:register", { email })
 
-    socket.on("incoming:call", ({ fromEmail, offer }) => {
+    socket.on("incoming:call", ({ fromEmail, offer }: { fromEmail: string; offer: RTCSessionDescriptionInit }) => {
       setIncomingCall({ fromEmail, offer })
     })
 
-    socket.on("call:accepted", async ({ ans }) => {
+    socket.on("call:accepted", async ({ ans }: { ans: RTCSessionDescriptionInit }) => {
       await peerRef.current?.setRemoteDescription(new RTCSessionDescription(ans))
     })
 
-    socket.on("ice:candidate", async ({ candidate }) => {
+    socket.on("ice:candidate", async ({ candidate }: { candidate: RTCIceCandidateInit }) => {
       if (candidate) {
         await peerRef.current?.addIceCandidate(new RTCIceCandidate(candidate))
       }
@@ -58,7 +51,7 @@ export default function SimpleVideoCall() {
       socket.off("ice:candidate")
       socket.off("call:end")
     }
-  }, [socket])
+  }, [socket, email])
 
   const createPeerConnection = () => {
     const peer = new RTCPeerConnection(configuration)
@@ -70,7 +63,7 @@ export default function SimpleVideoCall() {
     }
 
     peer.onicecandidate = (event) => {
-      if (event.candidate) {
+      if (event.candidate && socket) {
         socket.emit("ice:candidate", {
           toEmail: remoteEmail,
           candidate: event.candidate
@@ -98,6 +91,7 @@ export default function SimpleVideoCall() {
   }
 
   const callUser = async () => {
+    if (!socket) return
     const stream = await startMedia()
     const peer = createPeerConnection()
 
@@ -116,6 +110,7 @@ export default function SimpleVideoCall() {
   }
 
   const acceptCall = async () => {
+    if (!socket || !incomingCall) return
     const { fromEmail, offer } = incomingCall
     setRemoteEmail(fromEmail)
 
